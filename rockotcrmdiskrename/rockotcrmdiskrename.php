@@ -105,7 +105,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
                 return null;
             }
             $urlParts = explode('/', $currentUrl);
-            $groupId = $urlParts[3];
+            $groupId = $urlParts[4];
             if (!$groupId) {
                 return null;
             }
