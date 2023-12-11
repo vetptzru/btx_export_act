@@ -79,7 +79,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         _printBP_("D6.2");
 
-        _printBP_(var_export($dealTitle));
+        _printBP_($dealTitle);
 
         _printBP_("D6.3");
 
