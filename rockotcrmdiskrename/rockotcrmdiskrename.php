@@ -67,9 +67,15 @@ class CBPRockotCrmDiskRename extends CBPActivity
         
         _printBP_("D6");
 
-        $storage = Driver::getInstance()->getStorageByGroupId();
+        $driver = \Bitrix\Disk\Driver::getInstance(); 
 
-        _printBP_(var_export($groupId));
+        _printBP_("D6.1");
+
+	    $storage = $driver->getStorageByGroupId($groupId);//группы 
+
+        _printBP_("D6.2");
+
+        _printBP_(var_export($storage));
 
         _printBP_("D7");
 
