@@ -34,19 +34,29 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         
 
+        _printBP_("D1");
         
-        //if (!Loader::includeModule('disk')) {
-        //    return CBPActivityExecutionStatus::Closed;
-        //}
+        if (!Loader::includeModule('disk')) {
+           return CBPActivityExecutionStatus::Closed;
+        }
+
+        _printBP_("D2");
 
         if (!Loader::includeModule('crm')) {
             return CBPActivityExecutionStatus::Closed;
         }
 
+        _printBP_("D3");
+
         $groupId = CBPRockotCrmDiskRename::getGroupIdByDeal($this->dealId);
+
+        _printBP_("D4");
+
         if (!$groupId) {
             return CBPActivityExecutionStatus::Closed;;
         }
+
+        _printBP_("D5");
 
         _printBP_(var_export($groupId));
 
