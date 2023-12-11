@@ -48,16 +48,20 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         _printBP_("D3");
 
-        $groupId = CBPRockotCrmDiskRename::getGroupIdByDeal($dealId);
+        $dealInfo = CBPRockotCrmDiskRename::getGroupIdByDeal($dealId); 
+        if (!$dealInfo) {
+            return CBPActivityExecutionStatus::Closed;;
+        }
+
+        $groupId = $dealInfo["groupId"];
+        $dealTitle = $dealInfo["title"];
 
 
         _printBP_($groupId);
 
         _printBP_("D4");
 
-        if (!$groupId) {
-            return CBPActivityExecutionStatus::Closed;;
-        }
+        
 
         _printBP_("D5");
 
@@ -75,7 +79,17 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         _printBP_("D6.2");
 
-        _printBP_(var_export($storage));
+        _printBP_(var_export($dealTitle));
+
+        _printBP_("D6.3");
+
+        if(!$storage->rename($dealTitle)){
+            _printBP_("D6.4");
+            $errors = $storage->getErrors();
+            _printBP_("D6.5");
+            _printBP_($errors);
+            _printBP_("D6.6");
+        }
 
         _printBP_("D7");
 
@@ -111,7 +125,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
     public static function getGroupIdByDeal($dealId) {
         CModule::IncludeModule('crm');
-        $dbRes = CCrmDeal::GetListEx([], ["ID" => $dealId], false, false, ["UF_CRM_1679410842"]);
+        $dbRes = CCrmDeal::GetListEx([], ["ID" => $dealId], false, false, ["TITLE", "UF_CRM_1679410842"]);
         while ($deal = $dbRes->Fetch()) {
             $currentUrl = $deal["UF_CRM_1679410842"];
             if (!$currentUrl) {
@@ -124,7 +138,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
             if (!$groupId) {
                 return null;
             }
-            return $groupId;
+            return ["groupId" => $groupId, "title" => $deal["TITLE"]];
         }
         return null;
     }
