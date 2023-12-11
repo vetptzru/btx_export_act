@@ -21,77 +21,39 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
     public function Execute()
     {
-        _printBP_(">> RUN >>");
-
-        $debug = "NOT";
         $documentId = $this->GetDocumentId();
         if (strpos($documentId[2], 'DEAL_') != 0) {
-            _printBP_("NNNNN");
+            return CBPActivityExecutionStatus::Closed;
         }
 
-        $dealId = substr($documentId[2], 5); // Извлекаем ID сделки
-        _printBP_($dealId);
+        $dealId = substr($documentId[2], 5);
 
-        
-
-        _printBP_("D1");
         
         if (!Loader::includeModule('disk')) {
            return CBPActivityExecutionStatus::Closed;
         }
 
-        _printBP_("D2");
-
         if (!Loader::includeModule('crm')) {
             return CBPActivityExecutionStatus::Closed;
         }
 
-        _printBP_("D3");
-
         $dealInfo = CBPRockotCrmDiskRename::getGroupIdByDeal($dealId); 
         if (!$dealInfo) {
-            return CBPActivityExecutionStatus::Closed;;
+            return CBPActivityExecutionStatus::Closed;
         }
 
         $groupId = $dealInfo["groupId"];
         $dealTitle = $dealInfo["title"];
 
 
-        _printBP_($groupId);
-
-        _printBP_("D4");
-
-        
-
-        _printBP_("D5");
-
-        _printBP_(var_export($groupId));
-
-        
-        
-        _printBP_("D6");
-
         $driver = \Bitrix\Disk\Driver::getInstance(); 
-
-        _printBP_("D6.1");
-
-	    $storage = $driver->getStorageByGroupId($groupId);//группы 
-
-        _printBP_("D6.2");
-
-        _printBP_($dealTitle);
-
-        _printBP_("D6.3");
+	    $storage = $driver->getStorageByGroupId($groupId);
 
         if(!$storage->rename($dealTitle)){
-            _printBP_("D6.4");
-            $errors = $storage->getErrors();
-            _printBP_("D6.5");
-            _printBP_($errors);
-            _printBP_("D6.6");
+            return CBPActivityExecutionStatus::Closed;
         }
 
-        _printBP_("D7");
+        _printBP_($storage->getId());
 
         // $folder = $storage->getFolderById($this->dealId);
         
