@@ -21,18 +21,47 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
     public function Execute()
     {
-        if (!Loader::includeModule('disk')) {
+        _printBP_(">> RUN >>");
+
+        $debug = "NOT";
+        $documentId = $this->GetDocumentId();
+        if (strpos($documentId[2], 'DEAL_') != 0) {
+            _printBP_("NNNNN");
+        }
+
+        $dealId = substr($documentId[2], 5); // Извлекаем ID сделки
+        _printBP_($dealId);
+
+        
+
+        
+        //if (!Loader::includeModule('disk')) {
+        //    return CBPActivityExecutionStatus::Closed;
+        //}
+
+        if (!Loader::includeModule('crm')) {
             return CBPActivityExecutionStatus::Closed;
         }
 
-        $storage = Driver::getInstance()->getStorageByGroupId(Целевая_Группа); // Замените Целевая_Группа на ID вашей группы
-        $folder = $storage->getFolderById($this->dealId);
-
-        if ($folder) {
-            $folder->rename($this->newName, $this->getWorkflow()->getDocumentId()[2]);
+        $groupId = CBPRockotCrmDiskRename::getGroupIdByDeal($this->dealId);
+        if (!$groupId) {
+            return CBPActivityExecutionStatus::Closed;;
         }
 
-        return CBPActivityExecutionStatus::Closed;
+        _printBP_(var_export($groupId));
+
+        _printBP_(">> END >>");
+
+
+        //[---]
+        // $storage = Driver::getInstance()->getStorageByGroupId(Целевая_Группа);
+        // $folder = $storage->getFolderById($this->dealId);
+
+        // if ($folder) {
+        //     $folder->rename($this->newName, $this->getWorkflow()->getDocumentId()[2]);
+        // }
+
+        // return CBPActivityExecutionStatus::Closed;
     }
 
     public static function GetPropertiesDialog($documentType, $activityName, $workflowTemplate, $workflowParameters, $workflowVariables, $currentValues = null, $formName = "")
@@ -53,4 +82,26 @@ class CBPRockotCrmDiskRename extends CBPActivity
             )
         );
     }
+
+    public static function getGroupIdByDeal($dealId) {
+        CModule::IncludeModule('crm');
+        $dbRes = CCrmDeal::GetListEx([], ["ID" => $dealId], false, false, ["UF_CRM_1679410842"]);
+        while ($deal = $dbRes->Fetch()) {
+            $currentUrl = $deal["UF_CRM_1679410842"];
+            if (!$currentUrl) {
+                return null;
+            }
+            $urlParts = explode('/', $currentUrl);
+            $groupId = $urlParts[3];
+            if (!$groupId) {
+                return null;
+            }
+            return $groupId;
+        }
+        return $result;
+    }
+}
+
+function _printBP_($mes) {
+	file_put_contents($_SERVER['DOCUMENT_ROOT']."/deb.log", $mes."\n", FILE_APPEND);
 }
