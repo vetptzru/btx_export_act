@@ -48,7 +48,10 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         _printBP_("D3");
 
-        $groupId = CBPRockotCrmDiskRename::getGroupIdByDeal($this->dealId);
+        $groupId = CBPRockotCrmDiskRename::getGroupIdByDeal($dealId);
+
+
+        _printBP_(var_export($groupId));
 
         _printBP_("D4");
 
