@@ -52,18 +52,8 @@ class CBPRockotCrmDiskRename extends CBPActivity
         if(!$storage->rename($dealTitle)){
             return CBPActivityExecutionStatus::Closed;
         }
-
-        _printBP_($storage->getId());
-
-        // $folder = $storage->getFolderById($this->dealId);
-        
-        // if ($folder) {
-            //     $folder->rename($this->newName, $this->getWorkflow()->getDocumentId()[2]);
-            // }
-            
-            // return CBPActivityExecutionStatus::Closed;
-
-        _printBP_(">> END >>");
+        // _printBP_($storage->getId());
+        // _printBP_(">> END >>");
     }
 
     public static function GetPropertiesDialog($documentType, $activityName, $workflowTemplate, $workflowParameters, $workflowVariables, $currentValues = null, $formName = "")
