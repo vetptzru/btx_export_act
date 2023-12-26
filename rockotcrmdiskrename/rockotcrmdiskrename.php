@@ -25,30 +25,31 @@ class CBPRockotCrmDiskRename extends CBPActivity
     public function Execute()
     {
         CBPRockotCrmDiskRename::debugInLog("\n\n> Start BP");
-        // Check modules
-        if (!CBPRockotCrmDiskRename::checkModules()) {
-            return CBPActivityExecutionStatus::Closed;
-        }
 
-        CBPRockotCrmDiskRename::debugInLog("> All modules is included");
+        // // Check modules
+        // if (!CBPRockotCrmDiskRename::checkModules()) {
+        //     return CBPActivityExecutionStatus::Closed;
+        // }
+
+        // CBPRockotCrmDiskRename::debugInLog("> All modules is included");
         
-        // Get Deal info
-        $deal = CBPRockotCrmDiskRename::getDealInfo($this->GetDocumentId());
-        if (!$deal) {
-            return CBPActivityExecutionStatus::Closed;
-        }
+        // // Get Deal info
+        // $deal = CBPRockotCrmDiskRename::getDealInfo($this->GetDocumentId());
+        // if (!$deal) {
+        //     return CBPActivityExecutionStatus::Closed;
+        // }
 
-        CBPRockotCrmDiskRename::debugInLog("> Has deal info");
-        CBPRockotCrmDiskRename::debugInLog(var_export($deal));
+        // CBPRockotCrmDiskRename::debugInLog("> Has deal info");
+        // CBPRockotCrmDiskRename::debugInLog(var_export($deal));
         
-        // Rename folder in group
-        $renameStatus = CBPRockotCrmDiskRename::renameFolder($deal["groupId"], $deal["title"]);
-        if ($renameStatus) {
-            return CBPActivityExecutionStatus::Closed;
-        }
+        // // Rename folder in group
+        // $renameStatus = CBPRockotCrmDiskRename::renameFolder($deal["groupId"], $deal["title"]);
+        // if ($renameStatus) {
+        //     return CBPActivityExecutionStatus::Closed;
+        // }
 
-        CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
-        CBPRockotCrmDiskRename::debugInLog(var_export($renameStatus));
+        // CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
+        // CBPRockotCrmDiskRename::debugInLog(var_export($renameStatus));
 
 
         return \CBPActivityExecutionStatus::Closed;
