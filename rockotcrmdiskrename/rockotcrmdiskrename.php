@@ -72,9 +72,10 @@ class CBPRockotCrmDiskRename extends CBPActivity
         }
 
         CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
+
+        CBPRockotCrmDiskRename::testMe();
         // CBPRockotCrmDiskRename::debugInLog(($renameStatus));
-
-
+        CBPRockotCrmDiskRename::debugInLog("> Done");
 
         return CBPActivityExecutionStatus::Closed;
     }
@@ -241,6 +242,24 @@ class CBPRockotCrmDiskRename extends CBPActivity
         $storage = $driver->getStorageByGroupId($groupId);
         $folder = $storage->getRootObject();
         return $folder;
+    }
+
+    private static function testMe() {
+        $realObjectId = 943903;
+        $filter = array(
+            '=REAL_OBJECT_ID' => $realObjectId,
+            'TYPE' => \Bitrix\Disk\Internals\ObjectTable::TYPE_FOLDER // Фильтрация только папок
+        );
+        
+        $foldersList = \Bitrix\Disk\Internals\FolderTable::getList(array(
+            'filter' => $filter,
+            'select' => array('*') // Выбор всех полей
+        ));
+        
+        while ($folder = $foldersList->fetch()) {
+            $_log = "Название папки: " . $folder['NAME'] . "\n";
+            CBPRockotCrmDiskRename::debugInLog($_log);
+        }
     }
 
     /**
