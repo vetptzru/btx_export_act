@@ -261,11 +261,13 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         $folder = \Bitrix\Disk\Folder::loadById($objectId);
         $storage = $folder->getStorage();
-        $success = $storage->rename($newName);
+        $success = $storage->renameInternal($newName);
 
         if(!$success){
             $errors = $storage->getErrors();
             CBPRockotCrmDiskRename::debugInLog(var_export($errors, true));
+            CBPRockotCrmDiskRename::debugInLog("$objectId; $newName; $storageId");
+            return false;
         }
 
         CBPRockotCrmDiskRename::debugInLog(">>>>>>>>>>>>>>>>>>>!!!!!>>>>>>>>>>>>>>>>>>>>");
