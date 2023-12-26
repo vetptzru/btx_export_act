@@ -55,9 +55,9 @@ class CBPRockotCrmDiskRename extends CBPActivity
         // CBPRockotCrmDiskRename::debugInLog("--> title:".$_folder_path);
         // CBPRockotCrmDiskRename::debugInLog(4);
 
-        if (!$_folder_path) {
-            return CBPActivityExecutionStatus::Closed;
-        }
+        // if (!$_folder_path) {
+        //     return CBPActivityExecutionStatus::Closed;
+        // }
 
         // Get folder by group
         // $folder = CBPRockotCrmDiskRename::getFolderByGroupId($deal["groupId"]);
