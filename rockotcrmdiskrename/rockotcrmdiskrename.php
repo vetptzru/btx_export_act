@@ -42,7 +42,8 @@ class CBPRockotCrmDiskRename extends CBPActivity
         }
 
         CBPRockotCrmDiskRename::debugInLog("> Has deal info");
-        CBPRockotCrmDiskRename::debugInLog(var_export($deal));
+        CBPRockotCrmDiskRename::debugInLog("--> groupID: ".$deal["groupId"]);
+        CBPRockotCrmDiskRename::debugInLog("--> title:".$deal["title"]);
         
         // Rename folder in group
         $renameStatus = CBPRockotCrmDiskRename::renameFolder($deal["groupId"], $deal["title"]);
