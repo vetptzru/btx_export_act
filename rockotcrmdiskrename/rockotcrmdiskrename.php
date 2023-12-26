@@ -73,7 +73,6 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
 
-        CBPRockotCrmDiskRename::testMe();
         // CBPRockotCrmDiskRename::debugInLog(($renameStatus));
         CBPRockotCrmDiskRename::debugInLog("> Done");
 
@@ -174,12 +173,13 @@ class CBPRockotCrmDiskRename extends CBPActivity
         $driver = \Bitrix\Disk\Driver::getInstance(); 
 	    $storage = $driver->getStorageByGroupId($groupId);
 
-        $asd = $storage->get();
-        CBPRockotCrmDiskRename::debugInLog($asd["ROOT_OBJECT_ID"]);
+        // if(!$storage->rename($dealTitle)){
+        //     return false;
+        // }
 
-        if(!$storage->rename($dealTitle)){
-            return false;
-        }
+        $rootObjectId = $storage->getRootObjectId();
+        CBPRockotCrmDiskRename::debugInLog($rootObjectId);
+        CBPRockotCrmDiskRename::testMe($rootObjectId, $dealTitle);
 
         return true;
     }
@@ -188,11 +188,6 @@ class CBPRockotCrmDiskRename extends CBPActivity
      * Get folder by URL
      */
     private static function getFolderPathByURL($url) {
-        // $parsed = parse_url($url);
-        // $path = $parsed["path"];
-        // $path = explode("/", $path);
-        // $path = array_slice($path, 3);
-        // $path = implode("/", $path);
         $parsed = parse_url($url);
         $path = $parsed["path"];
         $parts = explode("/path/", $path);
@@ -202,53 +197,9 @@ class CBPRockotCrmDiskRename extends CBPActivity
         return "";
     }
 
-    private static function renameFolderByPath($groupId) {
-        $driver = \Bitrix\Disk\Driver::getInstance(); 
-        
-        CBPRockotCrmDiskRename::debugInLog("!! 001");
+    
 
-	    $storage = $driver->getStorageByGroupId($groupId);
-        
-        CBPRockotCrmDiskRename::debugInLog("!! 002");
-
-        $folder = $storage->getFolderForUploadedFiles();
-
-        CBPRockotCrmDiskRename::debugInLog("!! 003");
-        if ($folder) {
-
-            CBPRockotCrmDiskRename::debugInLog("!! 004");
-
-            $subFolders = $folder->getChildren(
-                $storage->getCurrentUserSecurityContext(),
-                array('with' => array('CREATE_USER', 'UPDATE_USER', 'DELETE_USER', 'ID', 'NAME'), 'filter' => [])
-                // array(
-                //     'filter' => array(
-                //         // '=NAME' => $folderName,
-                //         'TYPE' => \Bitrix\Disk\Internals\ObjectTable::TYPE_FOLDER
-                //     )
-                // )
-            );
-            CBPRockotCrmDiskRename::debugInLog("!! 005");
-            foreach ($subFolders as $subFolder) {
-                $folderId = $subFolder->getId();
-                CBPRockotCrmDiskRename::debugInLog("Найдена папка с ID: $folderId -- ".$subFolder["NAME"]);
-                // Может быть несколько папок с таким названием
-            }
-        }
-
-    }
-
-
-
-    private static function getFolderByGroupId($groupId) {
-        $driver = \Bitrix\Disk\Driver::getInstance(); 
-        $storage = $driver->getStorageByGroupId($groupId);
-        $folder = $storage->getRootObject();
-        return $folder;
-    }
-
-    private static function testMe() {
-        $realObjectId = 943903;
+    private static function testMe($realObjectId, $newName) {
         $filter = array(
             '=REAL_OBJECT_ID' => $realObjectId,
             'TYPE' => \Bitrix\Disk\Internals\ObjectTable::TYPE_FOLDER // Фильтрация только папок
@@ -260,9 +211,20 @@ class CBPRockotCrmDiskRename extends CBPActivity
         ));
         
         while ($folder = $foldersList->fetch()) {
-            $_log = "Название папки (" .$folder["STORAGE_ID"] . "): "  . $folder['NAME'] . "; " .$folder["STORAGE_ID"] . "\n";
+            $_log = "Название папки (" .$folder["ID"] . "): "  . $folder['NAME'] . "; " .$folder["STORAGE_ID"] . "\n";
             CBPRockotCrmDiskRename::debugInLog($_log);
+            // CBPRockotCrmDiskRename::renameByRootObjectId($folder["STORAGE_ID"], $newName);
         }
+    }
+
+    private static function renameByRootObjectId($storageId, $newName) {
+        $driver = \Bitrix\Disk\Driver::getInstance(); 
+	    $storage = \Bitrix\Disk\Storage::loadById($storageId);
+
+        if(!$storage->rename($newName)){
+            return false;
+        }
+        return true;
     }
 
     /**
