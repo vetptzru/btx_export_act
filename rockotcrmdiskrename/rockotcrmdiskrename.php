@@ -118,7 +118,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
     public static function getGroupIdByDeal($dealId) {
         $dbRes = CCrmDeal::GetListEx([], ["ID" => $dealId], false, false, ["TITLE", "UF_CRM_1679410842"]);
         while ($deal = $dbRes->Fetch()) {
-            $currentUrl = $deal[CBPRockotCrmDiskRename::UF_DEAL];
+            $currentUrl = $deal[CBPRockotCrmDiskRename::$UF_DEAL];
             if (!$currentUrl) {
                 return null;
             }
