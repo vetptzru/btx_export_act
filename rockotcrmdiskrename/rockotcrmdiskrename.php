@@ -14,6 +14,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
     public $newName;
 
     private static $UF_DEAL = "UF_CRM_1679410842";
+    private static $UF_DISK = 'UF_CRM_1679410808';
     private static $IS_DEBUG = true;
 
     public function __construct($name)
@@ -44,6 +45,12 @@ class CBPRockotCrmDiskRename extends CBPActivity
         CBPRockotCrmDiskRename::debugInLog("> Has deal info");
         CBPRockotCrmDiskRename::debugInLog("--> groupID: ".$deal["groupId"]);
         CBPRockotCrmDiskRename::debugInLog("--> title:".$deal["title"]);
+        CBPRockotCrmDiskRename::debugInLog("--> title:".$deal["diskUrl"]);
+
+        // Get folder by group
+        $folder = CBPRockotCrmDiskRename::getFolderByGroupId($deal["groupId"]);
+        $folderPath = CBPRockotCrmDiskRename::getFolderPathByURL($folder->getExternalLink(array("createByExternalLink" => true)));
+        CBPRockotCrmDiskRename::debugInLog("> Folder path: ".$folderPath);
         
         // Rename folder in group
         $renameStatus = CBPRockotCrmDiskRename::renameFolder($deal["groupId"], $deal["title"]);
@@ -117,9 +124,16 @@ class CBPRockotCrmDiskRename extends CBPActivity
      * Get group for deal
      */
     public static function getGroupIdByDeal($dealId) {
-        $dbRes = CCrmDeal::GetListEx([], ["ID" => $dealId], false, false, ["TITLE", "UF_CRM_1679410842"]);
+        $dbRes = CCrmDeal::GetListEx(
+            [], 
+            ["ID" => $dealId], 
+            false, 
+            false, 
+            ["TITLE", CBPRockotCrmDiskRename::$UF_DEAL, CBPRockotCrmDiskRename::$UF_DISK]
+        );
         while ($deal = $dbRes->Fetch()) {
             $currentUrl = $deal[CBPRockotCrmDiskRename::$UF_DEAL];
+            $diskUrl = $deal[CBPRockotCrmDiskRename::$UF_DISK];
             if (!$currentUrl) {
                 return null;
             }
@@ -130,7 +144,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
             if (!$groupId) {
                 return null;
             }
-            return ["groupId" => $groupId, "title" => $deal["TITLE"]];
+            return ["groupId" => $groupId, "title" => $deal["TITLE"], "diskUrl" => $diskUrl];
         }
         return null;
     }
@@ -149,6 +163,28 @@ class CBPRockotCrmDiskRename extends CBPActivity
         return true;
     }
 
+    /**
+     * Get folder by URL
+     */
+    private static function getFolderPathByURL($url) {
+        $parsed = parse_url($url);
+        $path = $parsed["path"];
+        $path = explode("/", $path);
+        $path = array_slice($path, 3);
+        $path = implode("/", $path);
+        return $path;
+    }
+
+    private static function getFolderByGroupId($groupId) {
+        $driver = \Bitrix\Disk\Driver::getInstance(); 
+        $storage = $driver->getStorageByGroupId($groupId);
+        $folder = $storage->getRootObject();
+        return $folder;
+    }
+
+    /**
+     * Log in file
+     */
     private static function debugInLog($message) {
         if (CBPRockotCrmDiskRename::$IS_DEBUG) {
             _printBP_($message);
