@@ -177,9 +177,9 @@ class CBPRockotCrmDiskRename extends CBPActivity
         $driver = \Bitrix\Disk\Driver::getInstance(); 
 	    $storage = $driver->getStorageByGroupId($groupId);
 
-        // if(!$storage->rename($dealTitle)){
-        //     return false;
-        // }
+        if(!$storage->rename($dealTitle)){
+            return false;
+        }
 
         $rootObjectId = $storage->getRootObjectId();
         CBPRockotCrmDiskRename::debugInLog($rootObjectId);
