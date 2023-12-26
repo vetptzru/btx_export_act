@@ -116,6 +116,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         $result["groupId"] = $groupInfo["groupId"];
         $result["title"] = $groupInfo["title"];
+        $result["diskUrl"] = $groupInfo["diskUrl"];
 
         return $result;
     }
@@ -144,7 +145,11 @@ class CBPRockotCrmDiskRename extends CBPActivity
             if (!$groupId) {
                 return null;
             }
-            return ["groupId" => $groupId, "title" => $deal["TITLE"], "diskUrl" => $diskUrl];
+            return [
+                "groupId" => $groupId, 
+                "title" => $deal["TITLE"], 
+                "diskUrl" => $diskUrl
+            ];
         }
         return null;
     }
