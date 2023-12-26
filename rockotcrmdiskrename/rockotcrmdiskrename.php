@@ -48,6 +48,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         CBPRockotCrmDiskRename::debugInLog("--> title:".$deal["diskUrl"]);
 
         $_folder_path = CBPRockotCrmDiskRename::getFolderPathByURL($deal["diskUrl"]);
+        CBPRockotCrmDiskRename::renameFolderByPath($_folder_path);
         CBPRockotCrmDiskRename::debugInLog("--> title:".$_folder_path);
 
         if (!$_folder_path) {
