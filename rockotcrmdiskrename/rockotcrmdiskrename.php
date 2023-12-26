@@ -213,7 +213,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         while ($folder = $foldersList->fetch()) {
             $_log = "Название папки (" .$folder["ID"] . "): "  . $folder['NAME'] . "; " .$folder["STORAGE_ID"] . "\n";
             CBPRockotCrmDiskRename::debugInLog($_log);
-            // CBPRockotCrmDiskRename::renameByRootObjectId($folder["STORAGE_ID"], $newName);
+            CBPRockotCrmDiskRename::renameByRootObjectId($folder["STORAGE_ID"], $newName);
         }
     }
 
