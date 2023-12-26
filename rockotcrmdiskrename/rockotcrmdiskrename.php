@@ -26,7 +26,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
     public function Execute()
     {
         // Change user to admin
-        CBPRockotCrmDiskRename::changeUserToAdmin();
+        // CBPRockotCrmDiskRename::changeUserToAdmin();
 
 
         CBPRockotCrmDiskRename::debugInLog("\n\n> Start BP");
@@ -251,7 +251,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         $object = \Bitrix\Disk\BaseObject::loadById($objectId);
         if ($object) {
-            $object->rename($newName, 84); // Второй параметр - ID пользователя, выполняющего операцию
+            $object->rename($newName); // Второй параметр - ID пользователя, выполняющего операцию
             // echo "Имя объекта обновлено.";
             return true;
         } else {
