@@ -249,19 +249,28 @@ class CBPRockotCrmDiskRename extends CBPActivity
         // $objectId = 123; // ID объекта, который вы хотите обновить
         // $newName = "Новое имя"; // Новое имя объекта
 
-        $object = \Bitrix\Disk\BaseObject::loadById($objectId);
-        if ($object) {
-            $object->rename($newName); // Второй параметр - ID пользователя, выполняющего операцию
-            // echo "Имя объекта обновлено.";
-            return true;
-        } else {
-            // echo "Объект не найден.";
-            return false;
+        // $object = \Bitrix\Disk\BaseObject::loadById($objectId);
+        // if ($object) {
+        //     $object->rename($newName); // Второй параметр - ID пользователя, выполняющего операцию
+        //     // echo "Имя объекта обновлено.";
+        //     return true;
+        // } else {
+        //     // echo "Объект не найден.";
+        //     return false;
+        // }
+
+        $folder = \Bitrix\Disk\Folder::loadById($objectId);
+        $storage = $folder->getStorage();
+        $success = $storage->rename($newName);
+
+        if(!$success){
+            $errors = $storage->getErrors();
+            CBPRockotCrmDiskRename::debugInLog(var_export($errors, true));
         }
 
         CBPRockotCrmDiskRename::debugInLog(">>>>>>>>>>>>>>>>>>>!!!!!>>>>>>>>>>>>>>>>>>>>");
 
-        return true;
+        return $success;
     }
 
     private static function changeUserToAdmin() {
