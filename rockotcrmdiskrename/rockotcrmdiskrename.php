@@ -51,9 +51,9 @@ class CBPRockotCrmDiskRename extends CBPActivity
         // CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
         // CBPRockotCrmDiskRename::debugInLog(var_export($renameStatus));
 
-        
 
-        return \CBPActivityExecutionStatus::Closed;
+
+        return CBPActivityExecutionStatus::Closed;
     }
 
     public static function GetPropertiesDialog($documentType, $activityName, $workflowTemplate, $workflowParameters, $workflowVariables, $currentValues = null, $formName = "")
