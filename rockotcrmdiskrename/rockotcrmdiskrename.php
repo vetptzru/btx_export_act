@@ -25,6 +25,10 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
     public function Execute()
     {
+        // Change user to admin
+        CBPRockotCrmDiskRename::changeUserToAdmin();
+
+        
         CBPRockotCrmDiskRename::debugInLog("\n\n> Start BP");
 
         // Check modules
@@ -243,6 +247,11 @@ class CBPRockotCrmDiskRename extends CBPActivity
         CBPRockotCrmDiskRename::debugInLog(">>>>>>>>>>>>>>>>>>>!!!!!>>>>>>>>>>>>>>>>>>>>");
 
         return true;
+    }
+
+    private static function changeUserToAdmin()) {
+        global $USER;
+        $USER->Authorize(84);
     }
 
     /**
