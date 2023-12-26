@@ -215,6 +215,8 @@ class CBPRockotCrmDiskRename extends CBPActivity
             CBPRockotCrmDiskRename::debugInLog("!! 004");
 
             $subFolders = $folder->getChildren(
+                $storage->getCurrentUserSecurityContext(),
+                array('with' => array('CREATE_USER', 'UPDATE_USER', 'DELETE_USER', 'ID', 'NAME'), 'filter' => [])
                 // array(
                 //     'filter' => array(
                 //         // '=NAME' => $folderName,
