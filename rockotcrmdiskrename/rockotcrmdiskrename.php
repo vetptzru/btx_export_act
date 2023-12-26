@@ -260,7 +260,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         // }
 
         // $folder = \Bitrix\Disk\Folder::loadById($objectId);
-        $folder = \Bitrix\Disk\Folder::loadById($itemId);
+        $folder = \Bitrix\Disk\Folder::loadById($objectId);
         if (!$folder) {
             CBPRockotCrmDiskRename::debugInLog("!!! EMPTY !!!");
             return false;
