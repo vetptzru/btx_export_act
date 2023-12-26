@@ -47,10 +47,13 @@ class CBPRockotCrmDiskRename extends CBPActivity
         CBPRockotCrmDiskRename::debugInLog("--> title:".$deal["title"]);
         CBPRockotCrmDiskRename::debugInLog("--> title:".$deal["diskUrl"]);
 
+        $_folder_path = CBPRockotCrmDiskRename::getFolderPathByURL($deal["diskUrl"]);
+        CBPRockotCrmDiskRename::debugInLog("--> title:".$_folder_path);
+
         // Get folder by group
-        $folder = CBPRockotCrmDiskRename::getFolderByGroupId($deal["groupId"]);
-        $folderPath = CBPRockotCrmDiskRename::getFolderPathByURL($folder->getExternalLink(array("createByExternalLink" => true)));
-        CBPRockotCrmDiskRename::debugInLog("> Folder path: ".$folderPath);
+        // $folder = CBPRockotCrmDiskRename::getFolderByGroupId($deal["groupId"]);
+        // $folderPath = CBPRockotCrmDiskRename::getFolderPathByURL($folder->getExternalLink(array("createByExternalLink" => true)));
+        // CBPRockotCrmDiskRename::debugInLog("> Folder path: ".$folderPath);
         
         // Rename folder in group
         $renameStatus = CBPRockotCrmDiskRename::renameFolder($deal["groupId"], $deal["title"]);
