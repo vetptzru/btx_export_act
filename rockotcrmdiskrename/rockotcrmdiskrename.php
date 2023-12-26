@@ -50,6 +50,10 @@ class CBPRockotCrmDiskRename extends CBPActivity
         $_folder_path = CBPRockotCrmDiskRename::getFolderPathByURL($deal["diskUrl"]);
         CBPRockotCrmDiskRename::debugInLog("--> title:".$_folder_path);
 
+        if (!$_folder_path) {
+            return CBPActivityExecutionStatus::Closed;
+        }
+
         // Get folder by group
         // $folder = CBPRockotCrmDiskRename::getFolderByGroupId($deal["groupId"]);
         // $folderPath = CBPRockotCrmDiskRename::getFolderPathByURL($folder->getExternalLink(array("createByExternalLink" => true)));
@@ -63,7 +67,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         }
 
         CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
-        CBPRockotCrmDiskRename::debugInLog(var_export($renameStatus));
+        // CBPRockotCrmDiskRename::debugInLog(($renameStatus));
 
 
 
@@ -175,13 +179,45 @@ class CBPRockotCrmDiskRename extends CBPActivity
      * Get folder by URL
      */
     private static function getFolderPathByURL($url) {
+        // $parsed = parse_url($url);
+        // $path = $parsed["path"];
+        // $path = explode("/", $path);
+        // $path = array_slice($path, 3);
+        // $path = implode("/", $path);
         $parsed = parse_url($url);
         $path = $parsed["path"];
-        $path = explode("/", $path);
-        $path = array_slice($path, 3);
-        $path = implode("/", $path);
-        return $path;
+        $parts = explode("/path/", $path);
+        if ($parts[1]) {
+            return $parts[1];
+        }
+        return "";
     }
+
+    private static function renameFolderByPath($groupId) {
+        $driver = \Bitrix\Disk\Driver::getInstance(); 
+	    $storage = $driver->getStorageByGroupId($groupId);
+        // $folder = $storage->getRootObject();
+
+        $folder = $storage->getFolderForUploadedFiles();
+        if ($folder) {
+            $subFolders = $folder->getChildren(
+                array(
+                    'filter' => array(
+                        // '=NAME' => $folderName,
+                        'TYPE' => \Bitrix\Disk\Internals\ObjectTable::TYPE_FOLDER
+                    )
+                )
+            );
+            foreach ($subFolders as $subFolder) {
+                $folderId = $subFolder->getId();
+                CBPRockotCrmDiskRename::debugInLog("Найдена папка с ID: $folderId -- ".$subFolder["NAME"]);
+                // Может быть несколько папок с таким названием
+            }
+        }
+
+    }
+
+
 
     private static function getFolderByGroupId($groupId) {
         $driver = \Bitrix\Disk\Driver::getInstance(); 
