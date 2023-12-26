@@ -215,12 +215,12 @@ class CBPRockotCrmDiskRename extends CBPActivity
             CBPRockotCrmDiskRename::debugInLog("!! 004");
 
             $subFolders = $folder->getChildren(
-                array(
-                    'filter' => array(
-                        // '=NAME' => $folderName,
-                        'TYPE' => \Bitrix\Disk\Internals\ObjectTable::TYPE_FOLDER
-                    )
-                )
+                // array(
+                //     'filter' => array(
+                //         // '=NAME' => $folderName,
+                //         'TYPE' => \Bitrix\Disk\Internals\ObjectTable::TYPE_FOLDER
+                //     )
+                // )
             );
             CBPRockotCrmDiskRename::debugInLog("!! 005");
             foreach ($subFolders as $subFolder) {
