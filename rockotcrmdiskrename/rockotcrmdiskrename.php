@@ -200,11 +200,20 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
     private static function renameFolderByPath($groupId) {
         $driver = \Bitrix\Disk\Driver::getInstance(); 
+        
+        CBPRockotCrmDiskRename::debugInLog("!! 001");
+
 	    $storage = $driver->getStorageByGroupId($groupId);
-        // $folder = $storage->getRootObject();
+        
+        CBPRockotCrmDiskRename::debugInLog("!! 002");
 
         $folder = $storage->getFolderForUploadedFiles();
+
+        CBPRockotCrmDiskRename::debugInLog("!! 003");
         if ($folder) {
+
+            CBPRockotCrmDiskRename::debugInLog("!! 004");
+
             $subFolders = $folder->getChildren(
                 array(
                     'filter' => array(
@@ -213,6 +222,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
                     )
                 )
             );
+            CBPRockotCrmDiskRename::debugInLog("!! 005");
             foreach ($subFolders as $subFolder) {
                 $folderId = $subFolder->getId();
                 CBPRockotCrmDiskRename::debugInLog("Найдена папка с ID: $folderId -- ".$subFolder["NAME"]);
