@@ -224,7 +224,8 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         if(!$storage->rename($newName)){
             $errors = $storage->getErrors();
-            CBPRockotCrmDiskRename::debugInLog($errors);
+            CBPRockotCrmDiskRename::debugInLog((string) $errors);
+            CBPRockotCrmDiskRename::debugInLog(var_export($errors, true));
             return false;
         }
         return true;
