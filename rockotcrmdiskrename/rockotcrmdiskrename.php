@@ -28,6 +28,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         // Check modules
         if (!CBPRockotCrmDiskRename::checkModules()) {
+            CBPRockotCrmDiskRename::debugInLog("> Error: no needed modules");
             return CBPActivityExecutionStatus::Closed;
         }
 
@@ -36,6 +37,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         // Get Deal info
         $deal = CBPRockotCrmDiskRename::getDealInfo($this->GetDocumentId());
         if (!$deal) {
+            CBPRockotCrmDiskRename::debugInLog("> Error: group found");
             return CBPActivityExecutionStatus::Closed;
         }
 
@@ -45,6 +47,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         // Rename folder in group
         $renameStatus = CBPRockotCrmDiskRename::renameFolder($deal["groupId"], $deal["title"]);
         if ($renameStatus) {
+            CBPRockotCrmDiskRename::debugInLog("> Error: can not rename folder");
             return CBPActivityExecutionStatus::Closed;
         }
 
