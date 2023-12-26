@@ -47,7 +47,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         
         // Rename folder in group
         $renameStatus = CBPRockotCrmDiskRename::renameFolder($deal["groupId"], $deal["title"]);
-        if ($renameStatus) {
+        if (!$renameStatus) {
             CBPRockotCrmDiskRename::debugInLog("> Error: can not rename folder");
             return CBPActivityExecutionStatus::Closed;
         }
