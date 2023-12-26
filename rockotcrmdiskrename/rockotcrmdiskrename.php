@@ -51,6 +51,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         // CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
         // CBPRockotCrmDiskRename::debugInLog(var_export($renameStatus));
 
+        
 
         return \CBPActivityExecutionStatus::Closed;
     }
