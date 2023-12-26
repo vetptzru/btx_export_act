@@ -217,17 +217,18 @@ class CBPRockotCrmDiskRename extends CBPActivity
         while ($folder = $foldersList->fetch()) {
             $_log = "Название папки (" .$folder["ID"] . "): "  . $folder['NAME'] . "; " .$folder["STORAGE_ID"] . "\n";
             CBPRockotCrmDiskRename::debugInLog($_log);
-            $_r = CBPRockotCrmDiskRename::renameByRootObjectId($folder["STORAGE_ID"], $newName);
+            $_r = CBPRockotCrmDiskRename::renameByRootObjectId($folder["STORAGE_ID"], $newName, $folder["ID"]);
             CBPRockotCrmDiskRename::debugInLog($_r ? "Успешно" : "Ошибка");
         }
     }
 
-    private static function renameByRootObjectId($storageId, $newName) {
+    private static function renameByRootObjectId($storageId, $newName, $objectId) {
 
         global $USER;
         $_u = "[".$USER->GetID()."] (".$USER->GetLogin().") ".$USER->GetFullName();
         CBPRockotCrmDiskRename::debugInLog(var_export($_u, true));
 
+        /*
 	    $storage = \Bitrix\Disk\Storage::loadById($storageId);
 
         if(!$storage->rename($newName)){
@@ -242,6 +243,20 @@ class CBPRockotCrmDiskRename extends CBPActivity
                 CBPRockotCrmDiskRename::debugInLog(var_export($errors, true));
                 return false;
             }
+        }
+        */
+
+        // $objectId = 123; // ID объекта, который вы хотите обновить
+        // $newName = "Новое имя"; // Новое имя объекта
+
+        $object = \Bitrix\Disk\BaseObject::loadById($objectId);
+        if ($object) {
+            $object->rename($newName, 84); // Второй параметр - ID пользователя, выполняющего операцию
+            // echo "Имя объекта обновлено.";
+            return true;
+        } else {
+            // echo "Объект не найден.";
+            return false;
         }
 
         CBPRockotCrmDiskRename::debugInLog(">>>>>>>>>>>>>>>>>>>!!!!!>>>>>>>>>>>>>>>>>>>>");
