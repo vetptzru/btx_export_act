@@ -219,15 +219,25 @@ class CBPRockotCrmDiskRename extends CBPActivity
     }
 
     private static function renameByRootObjectId($storageId, $newName) {
-        // $driver = \Bitrix\Disk\Driver::getInstance(); 
 	    $storage = \Bitrix\Disk\Storage::loadById($storageId);
 
         if(!$storage->rename($newName)){
+            
             $errors = $storage->getErrors();
+            
             CBPRockotCrmDiskRename::debugInLog((string) $errors);
             CBPRockotCrmDiskRename::debugInLog(var_export($errors, true));
-            return false;
+
+            $root = $storage->getRootObject();
+            
+            if(!$root->rename($newName)) {
+                $errors = $storage->getErrors();
+                CBPRockotCrmDiskRename::debugInLog((string) $errors);
+                CBPRockotCrmDiskRename::debugInLog(var_export($errors, true));
+                return false;
+            }
         }
+
         return true;
     }
 
