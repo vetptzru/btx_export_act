@@ -174,6 +174,9 @@ class CBPRockotCrmDiskRename extends CBPActivity
         $driver = \Bitrix\Disk\Driver::getInstance(); 
 	    $storage = $driver->getStorageByGroupId($groupId);
 
+        $asd = $storage->get();
+        CBPRockotCrmDiskRename::debugInLog($asd["ROOT_OBJECT_ID"]);
+
         if(!$storage->rename($dealTitle)){
             return false;
         }
@@ -257,7 +260,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         ));
         
         while ($folder = $foldersList->fetch()) {
-            $_log = "Название папки: " . $folder['NAME'] . "\n";
+            $_log = "Название папки (" .$folder["STORAGE_ID"] . "): "  . $folder['NAME'] . "; " .$folder["STORAGE_ID"] . "\n";
             CBPRockotCrmDiskRename::debugInLog($_log);
         }
     }
