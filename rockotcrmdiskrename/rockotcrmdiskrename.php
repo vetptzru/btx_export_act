@@ -13,6 +13,9 @@ class CBPRockotCrmDiskRename extends CBPActivity
     public $dealId;
     public $newName;
 
+    private static $UF_DEAL = "UF_CRM_1679410842";
+    private static $IS_DEBUG = true;
+
     public function __construct($name)
     {
         parent::__construct($name);
@@ -21,39 +24,34 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
     public function Execute()
     {
-        $documentId = $this->GetDocumentId();
-        if (strpos($documentId[2], 'DEAL_') != 0) {
+        CBPRockotCrmDiskRename::debugInLog("\n\n> Start BP");
+        // Check modules
+        if (!CBPRockotCrmDiskRename::checkModules()) {
             return CBPActivityExecutionStatus::Closed;
         }
 
-        $dealId = substr($documentId[2], 5);
-
+        CBPRockotCrmDiskRename::debugInLog("> All modules is included");
         
-        if (!Loader::includeModule('disk')) {
-           return CBPActivityExecutionStatus::Closed;
-        }
-
-        if (!Loader::includeModule('crm')) {
+        // Get Deal info
+        $deal = CBPRockotCrmDiskRename::getDealInfo($this->GetDocumentId());
+        if (!$deal) {
             return CBPActivityExecutionStatus::Closed;
         }
 
-        $dealInfo = CBPRockotCrmDiskRename::getGroupIdByDeal($dealId); 
-        if (!$dealInfo) {
+        CBPRockotCrmDiskRename::debugInLog("> Has deal info");
+        CBPRockotCrmDiskRename::debugInLog(var_export($deal));
+        
+        // Rename folder in group
+        $renameStatus = CBPRockotCrmDiskRename::renameFolder($deal["groupId"], $deal["title"]);
+        if ($renameStatus) {
             return CBPActivityExecutionStatus::Closed;
         }
 
-        $groupId = $dealInfo["groupId"];
-        $dealTitle = $dealInfo["title"];
+        CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
+        CBPRockotCrmDiskRename::debugInLog(var_export($renameStatus));
 
 
-        $driver = \Bitrix\Disk\Driver::getInstance(); 
-	    $storage = $driver->getStorageByGroupId($groupId);
-
-        if(!$storage->rename($dealTitle)){
-            return CBPActivityExecutionStatus::Closed;
-        }
-        // _printBP_($storage->getId());
-        // _printBP_(">> END >>");
+        return \CBPActivityExecutionStatus::Closed;
     }
 
     public static function GetPropertiesDialog($documentType, $activityName, $workflowTemplate, $workflowParameters, $workflowVariables, $currentValues = null, $formName = "")
@@ -75,11 +73,47 @@ class CBPRockotCrmDiskRename extends CBPActivity
         );
     }
 
+    
+
+    /**
+     * Check modules
+     */
+    private static function checkModules() {
+        if (!Loader::includeModule('disk') || !Loader::includeModule('crm')) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Get current deal
+     */
+    private function getDealInfo($documentId) {
+        $result = ["groupId" => null, "title" => null];
+        
+        if (strpos($documentId[2], 'DEAL_') != 0) {
+            return false;
+        }
+
+        $dealId = substr($documentId[2], 5);
+        $groupInfo = CBPRockotCrmDiskRename::getGroupIdByDeal($dealId); 
+        if (!$groupInfo) {
+            return false;
+        }
+
+        $result["groupId"] = $groupInfo["groupId"];
+        $result["title"] = $groupInfo["title"];
+
+        return $result;
+    }
+
+    /**
+     * Get group for deal
+     */
     public static function getGroupIdByDeal($dealId) {
-        CModule::IncludeModule('crm');
         $dbRes = CCrmDeal::GetListEx([], ["ID" => $dealId], false, false, ["TITLE", "UF_CRM_1679410842"]);
         while ($deal = $dbRes->Fetch()) {
-            $currentUrl = $deal["UF_CRM_1679410842"];
+            $currentUrl = $deal[CBPRockotCrmDiskRename::UF_DEAL];
             if (!$currentUrl) {
                 return null;
             }
@@ -93,6 +127,26 @@ class CBPRockotCrmDiskRename extends CBPActivity
             return ["groupId" => $groupId, "title" => $deal["TITLE"]];
         }
         return null;
+    }
+
+    /**
+     * Rename folter
+     */
+    public static function renameFolder($groupId, $dealTitle) {
+        $driver = \Bitrix\Disk\Driver::getInstance(); 
+	    $storage = $driver->getStorageByGroupId($groupId);
+
+        if(!$storage->rename($dealTitle)){
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function debugInLog($message) {
+        if (CBPRockotCrmDiskRename::IS_DEBUG) {
+            _printBP_($message);
+        }
     }
 }
 
