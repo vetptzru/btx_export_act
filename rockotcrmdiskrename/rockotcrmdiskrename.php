@@ -146,7 +146,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
     }
 
     private static function debugInLog($message) {
-        if (CBPRockotCrmDiskRename::IS_DEBUG) {
+        if (CBPRockotCrmDiskRename::$IS_DEBUG) {
             _printBP_($message);
         }
     }
