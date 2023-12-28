@@ -38,7 +38,7 @@ class CBPRokotCrmAddDisk extends CBPActivity
     _printBP_(var_export($FolderID, true));
     _printBP_(var_export($FolderResultID, true));
 
-    return \CBPActivityExecutionStatus::Closed;
+    // return \CBPActivityExecutionStatus::Closed;
   }
 
   public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
