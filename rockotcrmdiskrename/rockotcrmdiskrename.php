@@ -334,8 +334,8 @@ class CBPRockotCrmDiskRename extends CBPActivity
         }
         $success = $folder->renameInternal($newName);
         if(!$success){
-            $errors = $storage->getErrors();
-            CBPRockotCrmDiskRename::debugInLog(var_export($errors, true));
+            // $errors = $storage->getErrors();
+            // CBPRockotCrmDiskRename::debugInLog(var_export($errors, true));
             CBPRockotCrmDiskRename::debugInLog("$objectId; $newName; $storageId");
             return false;
         }
