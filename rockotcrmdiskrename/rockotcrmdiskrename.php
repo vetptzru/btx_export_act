@@ -88,7 +88,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
         CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
 
-        $newUrl = CBPRockotCrmDiskRename::replaceLastPartInUrl($deal["diskUrl"], urlencode($deal["title"]));
+        $newUrl = CBPRockotCrmDiskRename::replaceLastPartInUrl($deal["diskUrl"], rawurlencode($deal["title"]));
         CBPRockotCrmDiskRename::debugInLog("> New URL: ".$newUrl);
 
         $success = CBPRockotCrmDiskRename::updateDiskFieldInDeal($deal["dealId"], $newUrl);
@@ -110,7 +110,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         $parsed = parse_url($url);
         $path = $parsed["path"];
         $parts = explode("/", $path);
-        $parts[count($parts) - 1] = $newPart;
+        $parts[count($parts) - 1] = $newPart."/";
         return implode("/", $parts);
     }
 
