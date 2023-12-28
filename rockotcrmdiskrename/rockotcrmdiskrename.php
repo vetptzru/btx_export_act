@@ -8,6 +8,8 @@ use Bitrix\Disk\Folder;
 use Bitrix\Disk\Driver;
 use Bitrix\Bizproc\Activity\PropertiesDialog;
 
+// Wrong path 945673
+
 class CBPRockotCrmDiskRename extends CBPActivity
 {
     public $dealId;
@@ -15,6 +17,8 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
     private static $UF_DEAL = "UF_CRM_1679410842";
     private static $UF_DISK = 'UF_CRM_1679410808';
+    private static $COMMON_DISK_ID = 19;
+    private static $COMMON_STORAGE_ID = 11;
     private static $IS_DEBUG = true;
 
     public function __construct($name)
@@ -25,10 +29,6 @@ class CBPRockotCrmDiskRename extends CBPActivity
 
     public function Execute()
     {
-        // Change user to admin
-        // CBPRockotCrmDiskRename::changeUserToAdmin();
-
-
         CBPRockotCrmDiskRename::debugInLog("\n\n> Start BP");
 
         // Check modules
@@ -49,35 +49,46 @@ class CBPRockotCrmDiskRename extends CBPActivity
         CBPRockotCrmDiskRename::debugInLog("> Has deal info");
         CBPRockotCrmDiskRename::debugInLog("--> groupID: ".$deal["groupId"]);
         CBPRockotCrmDiskRename::debugInLog("--> title:".$deal["title"]);
-        CBPRockotCrmDiskRename::debugInLog("--> title:".$deal["diskUrl"]);
+        CBPRockotCrmDiskRename::debugInLog("--> diskUrl:".$deal["diskUrl"]);
 
-        // CBPRockotCrmDiskRename::debugInLog(1);
-        // $_folder_path = CBPRockotCrmDiskRename::getFolderPathByURL($deal["diskUrl"]);
-        // CBPRockotCrmDiskRename::debugInLog(2);
-        // CBPRockotCrmDiskRename::renameFolderByPath($_folder_path);
-        // CBPRockotCrmDiskRename::debugInLog(3);
-        // CBPRockotCrmDiskRename::debugInLog("--> title:".$_folder_path);
-        // CBPRockotCrmDiskRename::debugInLog(4);
+        $folders = CBPRockotCrmDiskRename::getFoldersPathByURL($deal["diskUrl"]);
+        if (!$folders) {
+            CBPRockotCrmDiskRename::debugInLog("> Error: can not get folders path");
+            return CBPActivityExecutionStatus::Closed;
+        }
 
-        // if (!$_folder_path) {
-        //     return CBPActivityExecutionStatus::Closed;
-        // }
+        CBPRockotCrmDiskRename::debugInLog("> Has folders path");
+        CBPRockotCrmDiskRename::debugInLog("--> mainFolder: ".$folders["mainFolder"]);
+        CBPRockotCrmDiskRename::debugInLog("--> subFolder: ".$folders["subFolder"]);
 
-        // Get folder by group
-        // $folder = CBPRockotCrmDiskRename::getFolderByGroupId($deal["groupId"]);
-        // $folderPath = CBPRockotCrmDiskRename::getFolderPathByURL($folder->getExternalLink(array("createByExternalLink" => true)));
-        // CBPRockotCrmDiskRename::debugInLog("> Folder path: ".$folderPath);
-        
-        // Rename folder in group
-        $renameStatus = CBPRockotCrmDiskRename::renameFolder($deal["groupId"], $deal["title"]);
-        if (!$renameStatus) {
+        $mainFolderObject = CBPRockotCrmDiskRename::findFolderByName($folders["mainFolder"], CBPRockotCrmDiskRename::$COMMON_STORAGE_ID, CBPRockotCrmDiskRename::$COMMON_DISK_ID);
+        if (!$mainFolderObject) {
+            CBPRockotCrmDiskRename::debugInLog("> Error: can not find main folder");
+            return CBPActivityExecutionStatus::Closed;
+        }
+
+        CBPRockotCrmDiskRename::debugInLog("> Has main folder");
+        CBPRockotCrmDiskRename::debugInLog("--> mainFolderObject: ".$mainFolderObject["ID"]);
+
+        $subFolderObject = CBPRockotCrmDiskRename::findFolderByName($folders["subFolder"], CBPRockotCrmDiskRename::$COMMON_STORAGE_ID, $mainFolderObject["ID"]);
+        if (!$subFolderObject) {
+            CBPRockotCrmDiskRename::debugInLog("> Error: can not find sub folder");
+            return CBPActivityExecutionStatus::Closed;
+        }
+
+        CBPRockotCrmDiskRename::debugInLog("> Has sub folder");
+        CBPRockotCrmDiskRename::debugInLog("--> subFolderObject: ".$subFolderObject["ID"]);
+
+        $success = CBPRockotCrmDiskRename::renameByRootObjectId(CBPRockotCrmDiskRename::$COMMON_STORAGE_ID, $deal["title"], $subFolderObject["ID"]);
+        if (!$success) {
             CBPRockotCrmDiskRename::debugInLog("> Error: can not rename folder");
             return CBPActivityExecutionStatus::Closed;
         }
 
+
         CBPRockotCrmDiskRename::debugInLog("> Folder has been renamed");
 
-        // CBPRockotCrmDiskRename::debugInLog(($renameStatus));
+        
         CBPRockotCrmDiskRename::debugInLog("> Done");
 
         return CBPActivityExecutionStatus::Closed;
@@ -191,14 +202,18 @@ class CBPRockotCrmDiskRename extends CBPActivity
     /**
      * Get folder by URL
      */
-    private static function getFolderPathByURL($url) {
+    private static function getFoldersPathByURL($url) {
+        $result = ["mainFolder" => null, "subFolder" => null];
         $parsed = parse_url($url);
         $path = $parsed["path"];
         $parts = explode("/path/", $path);
         if ($parts[1]) {
-            return $parts[1];
+            $separeted = explode("/", $parts[1]);
+            $result["mainFolder"] = urldecode($separeted[0]);
+            $result["subFolder"] = urldecode($separeted[1]);
+            return $result;
         }
-        return "";
+        return null;
     }
 
     
@@ -220,6 +235,25 @@ class CBPRockotCrmDiskRename extends CBPActivity
             $_r = CBPRockotCrmDiskRename::renameByRootObjectId($folder["STORAGE_ID"], $newName, $folder["ID"]);
             CBPRockotCrmDiskRename::debugInLog($_r ? "Успешно" : "Ошибка");
         }
+    }
+
+    private static function findFolderByName($name, $storageId, $parentId) {
+        $filter = array(
+          'STORAGE_ID' => $storageId,
+          'PARENT_ID' => $parentId,
+          'NAME' => $name,
+          'TYPE' => \Bitrix\Disk\Internals\ObjectTable::TYPE_FOLDER
+        );
+      
+        $foldersList = \Bitrix\Disk\Internals\FolderTable::getList(array(
+            'filter' => $filter,
+            'select' => array('*')
+        ));
+          
+        while ($folder = $foldersList->fetch()) {
+          return $folder;
+        }
+        return null;
     }
 
     private static function renameByRootObjectId($storageId, $newName, $objectId) {
