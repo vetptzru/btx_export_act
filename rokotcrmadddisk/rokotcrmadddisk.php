@@ -49,19 +49,68 @@ class CBPRokotCrmAddDisk extends CBPActivity
       return \CBPActivityExecutionStatus::Closed;
     }
 
-    foreach ($departments[1] as $userId) {
-      $rights = $folder->getRights();
-      $rights[] = array(
-        'ACCESS_CODE' => 'U' . $userId, // Код доступа для пользователя
-        'TASK_ID' => \Bitrix\Disk\RightsManager::TASK_EDIT, // Право на запись
+    $rightsManager = \Bitrix\Disk\Driver::getInstance()->getRightsManager();
+
+    //---------------
+    // Получаем права на папку
+    //--------------
+    $query = new Query(RightTable::getEntity());
+    $rights = $query
+      ->setSelect(array('*', 'DEPTH_LEVEL' => 'PATH_PARENT.DEPTH_LEVEL', ))
+      ->setFilter(array(
+        'PATH_PARENT.OBJECT_ID' => $FolderResultID,
+      ))
+      ->exec()
+      ->fetchAll()
+    ;
+    //--------------
+    // Подучаем текущие права, и дописываем старые
+    //--------------
+    $newRights = [];
+    foreach ($rights as $right) {
+      $newRights[$right["ACCESS_CODE"]] = array(
+        'ACCESS_CODE' => $right["ACCESS_CODE"],
+        'TASK_ID' => $right["TASK_ID"],
+        'NEGATIVE' => $right["NEGATIVE"],
+        'OBJECT_ID' => $FolderResultID,
+        'DOMAIN' => $right["DOMAIN"],
+        'DEPTH_LEVEL' => $right["DEPTH_LEVEL"]
       );
-      $success = $folder->setRights($rights);
-      if (!$success) {
-        CBPRokotCrmAddDisk::_printBP_("Error in setRights!");
-        return \CBPActivityExecutionStatus::Closed;
-      }
+      //Удаляем текущие права
+      RightTable::delete($right["ID"]);
     }
+    //-------------
+    // Получаем список сотрудников
+    //--------------
+    foreach ($departments[1] as $department) {
+
+      if ((strpos($department, "G") !== false) || (strpos($department, "D") !== false)) {
+
+      } else {
+        $department = "U" . $department;
+      }
+
+      $newRights[$department] = array(
+        'ACCESS_CODE' => $department,
+        'TASK_ID' => $rightsManager::TASK_READ,
+        'NEGATIVE' => 0,
+        'OBJECT_ID' => $FolderResultID,
+        'DOMAIN' => "",
+        'DEPTH_LEVEL' => ""
+      );
+    }
+    CBPRokotCrmAddDisk::_printBP_(var_export($newRights, true));
+    //-------------
+    // Добавляем новые права
+    //--------------
+    foreach ($newRights as $resultRights) {
+      $result = RightTable::add($resultRights);
+    }
+    //-------------
+
+    CBPRokotCrmAddDisk::_printBP_("Second BP is finished!");
     
+
     return \CBPActivityExecutionStatus::Closed;
   }
 
