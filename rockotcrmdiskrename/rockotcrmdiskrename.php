@@ -110,7 +110,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         $parsed = parse_url($url);
         $path = $parsed["path"];
         $parts = explode("/", $path);
-        $parts[count($parts) - 1] = $newPart."/";
+        $parts[count($parts) - 1] = $newPart;
         return implode("/", $parts);
     }
 
