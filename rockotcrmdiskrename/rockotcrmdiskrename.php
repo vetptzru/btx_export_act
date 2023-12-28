@@ -117,7 +117,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         // $CCrmDeal = new CCrmDeal(false);
         // $CCrmDeal->Update($dealId, [UF_DISK => $diskLink]);
         $CCrmDeal = new CCrmDeal();
-        $fieldsToUpdate = array[CBPRockotCrmDiskRename::$UF_DISK => $diskLink];
+        $fieldsToUpdate = [CBPRockotCrmDiskRename::$UF_DISK => $diskLink];
 
         if (!$CCrmDeal->Update($dealId, $fieldsToUpdate)) {
             CBPRockotCrmDiskRename::debugInLog('Ошибка обновления: ' . $CCrmDeal->LAST_ERROR);
