@@ -22,8 +22,8 @@ class CBPRokotCrmAddDisk extends CBPActivity
     $Users = $this->Users;
     $FolderID = $this->FolderID;
 
-    if (!empty($EntityId)) {
-      $FolderResultID = $EntityId;
+    if (!empty($FolderID)) {
+      $FolderResultID = $FolderID;
     } else {
       // return \CBPActivityExecutionStatus::Closed;
     }
@@ -35,6 +35,7 @@ class CBPRokotCrmAddDisk extends CBPActivity
     $pattern = '/\[(.+?)\]/';
     preg_match_all($pattern, $Users, $departments);
     _printBP_(var_export($departments[1], true));
+    _printBP_(var_export($FolderID, true));
     _printBP_(var_export($FolderResultID, true));
 
     return \CBPActivityExecutionStatus::Closed;
