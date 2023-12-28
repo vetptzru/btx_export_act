@@ -62,6 +62,11 @@ class CBPRockotCrmDiskRename extends CBPActivity
         CBPRockotCrmDiskRename::debugInLog("--> mainFolder: ".$folders["mainFolder"]);
         CBPRockotCrmDiskRename::debugInLog("--> subFolder: ".$folders["subFolder"]);
 
+        if ($deal["title"] == $folders["subFolder"]) {
+            CBPRockotCrmDiskRename::debugInLog("> Error: folder has been renamed");
+            return CBPActivityExecutionStatus::Closed;
+        }
+
         $mainFolderObject = CBPRockotCrmDiskRename::findFolderByName($folders["mainFolder"], CBPRockotCrmDiskRename::$COMMON_STORAGE_ID, CBPRockotCrmDiskRename::$COMMON_DISK_ID);
         if (!$mainFolderObject) {
             CBPRockotCrmDiskRename::debugInLog("> Error: can not find main folder");

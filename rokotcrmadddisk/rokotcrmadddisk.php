@@ -28,17 +28,41 @@ class CBPRokotCrmAddDisk extends CBPActivity
       // return \CBPActivityExecutionStatus::Closed;
     }
 
-    _printBP_("Second BP is started!");
+    CBPRokotCrmAddDisk::_printBP_("Second BP is started!");
 
-    _printBP_(var_export($Users, true));
+    CBPRokotCrmAddDisk::_printBP_(var_export($Users, true));
 
     $pattern = '/\[(.+?)\]/';
-    preg_match_all($pattern, $Users, $departments);
-    _printBP_(var_export($departments[1], true));
-    _printBP_(var_export($FolderID, true));
-    _printBP_(var_export($FolderResultID, true));
+    $success = preg_match_all($pattern, $Users, $departments);
+    if (!$success) {
+      CBPRokotCrmAddDisk::_printBP_("Error in preg_match_all!");
+      return \CBPActivityExecutionStatus::Closed;
+    }
 
-    // return \CBPActivityExecutionStatus::Closed;
+    CBPRokotCrmAddDisk::_printBP_(var_export($departments[1], true));
+    CBPRokotCrmAddDisk::_printBP_(var_export($FolderID, true));
+    CBPRokotCrmAddDisk::_printBP_(var_export($FolderResultID, true));
+
+    $folder = \Bitrix\Disk\Folder::loadById($FolderID);
+    if (!$folder) {
+      CBPRokotCrmAddDisk::_printBP_("Folder not found!");
+      return \CBPActivityExecutionStatus::Closed;
+    }
+
+    foreach ($departments[1] as $userId) {
+      $rights = $folder->getRights();
+      $rights[] = array(
+        'ACCESS_CODE' => 'U' . $userId, // Код доступа для пользователя
+        'TASK_ID' => \Bitrix\Disk\RightsManager::TASK_EDIT, // Право на запись
+      );
+      $success = $folder->setRights($rights);
+      if (!$success) {
+        CBPRokotCrmAddDisk::_printBP_("Error in setRights!");
+        return \CBPActivityExecutionStatus::Closed;
+      }
+    }
+    
+    return \CBPActivityExecutionStatus::Closed;
   }
 
   public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
@@ -161,9 +185,10 @@ class CBPRokotCrmAddDisk extends CBPActivity
 
     return true;
   }
+
+  private static function _printBP_($mes)
+  {
+    file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/deb.log", $mes . "\n", FILE_APPEND);
+  }
 }
 
-function _printBP_($mes)
-{
-  file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/deb.log", $mes . "\n", FILE_APPEND);
-}
