@@ -47,6 +47,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         }
 
         CBPRockotCrmDiskRename::debugInLog("> Has deal info");
+        CBPRockotCrmDiskRename::debugInLog("--> dealId: ".$deal["dealId"]);
         CBPRockotCrmDiskRename::debugInLog("--> groupID: ".$deal["groupId"]);
         CBPRockotCrmDiskRename::debugInLog("--> title:".$deal["title"]);
         CBPRockotCrmDiskRename::debugInLog("--> diskUrl:".$deal["diskUrl"]);
@@ -90,7 +91,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
         $newUrl = CBPRockotCrmDiskRename::replaceLastPartInUrl($deal["diskUrl"], urlencode($deal["title"]));
         CBPRockotCrmDiskRename::debugInLog("> New URL: ".$newUrl);
 
-        $success = CBPRockotCrmDiskRename::updateDiskFieldInDeal($this->GetDocumentId(), $newUrl);
+        $success = CBPRockotCrmDiskRename::updateDiskFieldInDeal($deal["dealId"], $newUrl);
         if (!$success) {
             CBPRockotCrmDiskRename::debugInLog("> Error: can not update deal");
             return CBPActivityExecutionStatus::Closed;
@@ -114,7 +115,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
     }
 
     public static function updateDiskFieldInDeal($dealId, $diskLink) {
-        $CCrmDeal = new CCrmDeal(false);
+        $CCrmDeal = new CCrmDeal();
         $fieldsToUpdate = [CBPRockotCrmDiskRename::$UF_DISK => $diskLink];
 
         if (!$CCrmDeal->Update($dealId, $fieldsToUpdate)) {
@@ -172,6 +173,7 @@ class CBPRockotCrmDiskRename extends CBPActivity
             return false;
         }
 
+        $result["dealId"] = $dealId;
         $result["groupId"] = $groupInfo["groupId"];
         $result["title"] = $groupInfo["title"];
         $result["diskUrl"] = $groupInfo["diskUrl"];
