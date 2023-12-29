@@ -34,14 +34,13 @@ class CBPRokotCrmAddDisk extends CBPActivity
 
     CBPRokotCrmAddDisk::_printBP_(var_export($Users, true));
 
-    $pattern = '/\[(.+?)\]/';
-    $success = preg_match_all($pattern, $Users, $departments);
-    if (!$success) {
-      CBPRokotCrmAddDisk::_printBP_("Error in preg_match_all!");
+    $userList = CBPRokotCrmAddDisk::getUserList($Users);
+    if (!$userList) {
+      CBPRokotCrmAddDisk::_printBP_("Error in getUserList!");
       return \CBPActivityExecutionStatus::Closed;
     }
 
-    CBPRokotCrmAddDisk::_printBP_(var_export($departments[1], true));
+    CBPRokotCrmAddDisk::_printBP_(var_export($userList, true));
     CBPRokotCrmAddDisk::_printBP_(var_export($FolderID, true));
     CBPRokotCrmAddDisk::_printBP_(var_export($FolderResultID, true));
 
@@ -119,7 +118,7 @@ class CBPRokotCrmAddDisk extends CBPActivity
     //-------------
 
 
-    foreach ($departments[1] as $userId) {
+    foreach ($userList as $userId) {
       $result = CBPRokotCrmAddDisk::processActionConnectToUserStorage($FolderID, $userId);
       if (!$result) {
         CBPRokotCrmAddDisk::_printBP_("Error in processActionConnectToUserStorage!");
@@ -134,6 +133,29 @@ class CBPRokotCrmAddDisk extends CBPActivity
 
 
     return \CBPActivityExecutionStatus::Closed;
+  }
+
+  private static function getUserList($Users) {
+    // If users is array
+    if (is_array($Users)) {
+      $userList = [];
+      foreach ($Users as $user) {
+        $parts = explode("_", $user);
+        if (intval($parts[1]) > 0) {
+          $userList[] = $parts[1];
+        }
+      }
+      return $userList;
+    }
+
+    // If users is string
+    $pattern = '/\[(.+?)\]/';
+    $success = preg_match_all($pattern, $Users, $departments);
+    if (!$success) {
+      CBPRokotCrmAddDisk::_printBP_("Error in preg_match_all!");
+      return false;
+    }
+    return $departments[1];
   }
 
   public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
