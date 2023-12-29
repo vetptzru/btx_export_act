@@ -284,12 +284,14 @@ class CBPRokotCrmAddDisk extends CBPActivity
   {
     $object = BaseObject::loadById((int) $objectId, array('STORAGE'));
     if (!$object) {
+      CBPRokotCrmAddDisk::_printBP_("Error in BaseObject::loadById!");
       return false;
     }
 
     $storage = $object->getStorage();
     $securityContext = $storage->getCurrentUserSecurityContext();
     if (!$object->canRead($securityContext)) {
+      CBPRokotCrmAddDisk::_printBP_("Error in canRead!");
       return false;
     }
 
@@ -321,6 +323,7 @@ class CBPRokotCrmAddDisk extends CBPActivity
     }
 
     if ($sharingModel === null) {
+      CBPRokotCrmAddDisk::_printBP_("Error in Sharing::connectObjectToSelfUserStorage!");
       return false;
     }
     return true;
