@@ -6,6 +6,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 use Bitrix\Main;
 use Bitrix\Main\Entity\Query;
 use Bitrix\Disk\Internals\RightTable;
+use Bitrix\Disk\BaseObject;
+use Bitrix\Disk\Sharing;
 
 class CBPRokotCrmAddDisk extends CBPActivity
 {
@@ -49,11 +51,12 @@ class CBPRokotCrmAddDisk extends CBPActivity
       return \CBPActivityExecutionStatus::Closed;
     }
 
-    $rightsManager = \Bitrix\Disk\Driver::getInstance()->getRightsManager();
+    // $rightsManager = \Bitrix\Disk\Driver::getInstance()->getRightsManager();
 
     //---------------
     // Получаем права на папку
     //--------------
+    /*
     $query = new Query(RightTable::getEntity());
     $rights = $query
       ->setSelect(array('*', 'DEPTH_LEVEL' => 'PATH_PARENT.DEPTH_LEVEL', ))
@@ -63,9 +66,11 @@ class CBPRokotCrmAddDisk extends CBPActivity
       ->exec()
       ->fetchAll()
     ;
+    */
     //--------------
     // Подучаем текущие права, и дописываем старые
     //--------------
+    /*
     $newRights = [];
     foreach ($rights as $right) {
       $newRights[$right["ACCESS_CODE"]] = array(
@@ -79,9 +84,11 @@ class CBPRokotCrmAddDisk extends CBPActivity
       //Удаляем текущие права
       RightTable::delete($right["ID"]);
     }
+    */
     //-------------
     // Получаем список сотрудников
     //--------------
+    /*
     foreach ($departments[1] as $department) {
 
       if ((strpos($department, "G") !== false) || (strpos($department, "D") !== false)) {
@@ -100,16 +107,31 @@ class CBPRokotCrmAddDisk extends CBPActivity
       );
     }
     CBPRokotCrmAddDisk::_printBP_(var_export($newRights, true));
+    */
     //-------------
     // Добавляем новые права
     //--------------
+    /*
     foreach ($newRights as $resultRights) {
       $result = RightTable::add($resultRights);
     }
+    */
     //-------------
 
-    CBPRokotCrmAddDisk::_printBP_("Second BP is finished!");
+
+    foreach ($departments[1] as $userId) {
+      $result = CBPRokotCrmAddDisk::processActionConnectToUserStorage($FolderID, $userId);
+      if (!$result) {
+        CBPRokotCrmAddDisk::_printBP_("Error in processActionConnectToUserStorage!");
+        continue;
+      }
+      CBPRokotCrmAddDisk::_printBP_("processActionConnectToUserStorage is success!");
+    }
+
     
+
+    CBPRokotCrmAddDisk::_printBP_("Second BP is finished!");
+
 
     return \CBPActivityExecutionStatus::Closed;
   }
@@ -234,6 +256,54 @@ class CBPRokotCrmAddDisk extends CBPActivity
 
     return true;
   }
+
+
+  protected function processActionConnectToUserStorage($objectId, $userId)
+  {
+    $object = BaseObject::loadById((int) $objectId, array('STORAGE'));
+    if (!$object) {
+      return false;
+    }
+
+    $storage = $object->getStorage();
+    $securityContext = $storage->getCurrentUserSecurityContext();
+    if (!$object->canRead($securityContext)) {
+      return false;
+    }
+
+    $errorCollection = new Bitrix\Disk\Internals\Error\ErrorCollection;
+
+    if ($storage->getRootObjectId() == $object->getId()) {
+      $existingSharing = Sharing::getExisting($userId, $object);
+      if ($existingSharing && $existingSharing->isUnreplied()) {
+        if ($existingSharing->approve()) {
+          $sharingModel = $existingSharing;
+        }
+      } else {
+        $sharingModel = Sharing::connectGroupToSelfUserStorage(
+          $userId,
+          $storage,
+          $errorCollection
+        );
+      }
+
+      if ($sharingModel) {
+        return true;
+      }
+    } else {
+      $sharingModel = Sharing::connectObjectToSelfUserStorage(
+        $userId,
+        $object,
+        $errorCollection
+      );
+    }
+
+    if ($sharingModel === null) {
+      return false;
+    }
+    return true;
+  }
+
 
   private static function _printBP_($mes)
   {
